@@ -25,7 +25,7 @@ const handlerObj = {
             return false;
         }
     },
-    
+
     set(target, prop, value) {
         console.log(prop, 'props');
         console.log(value, 'value')
