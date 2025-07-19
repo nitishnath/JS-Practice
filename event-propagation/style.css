@@ -1,0 +1,50 @@
+#categories{
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 12px;
+    font-size: 20px;
+    :nth-child(n){
+    cursor: pointer;
+        &:hover{
+            background-color: aqua;
+        }
+    }
+}
+.input-field{
+    margin: 12px;
+}
+
+.modal-text{
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 20px;
+}
+
+.modalContainer{
+    display: none;
+    position: absolute;
+    top: 0;
+    background-color: rgba(221, 221, 221, 0.5);
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    align-items: center
+}
+
+.modal{
+    display: flex;
+    justify-content: space-between;
+    width: 500px;
+    height: 400px;
+    border: 1px solid black;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 5px grey;
+    border-radius: 10px;
+    #closeModal{
+        cursor: pointer
+    }
+}
