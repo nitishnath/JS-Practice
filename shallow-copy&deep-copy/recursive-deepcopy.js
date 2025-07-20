@@ -15,6 +15,14 @@ const user1 = {
 
 function recursiveDeepCopy(obj) {
     
+    const map = new WeakMap()
+
+    // this if condition check if the obj is already copied or not
+    if(map.has(obj)) {
+        // if obj is already copied then return it using map.get(obj)
+        return map.get(obj)
+    }
+
     //base case: here we have checked that if obj is not an object or null then return it
     if((typeof obj !== 'object') || obj === null) return obj
 
@@ -28,6 +36,9 @@ function recursiveDeepCopy(obj) {
     for(let i = 0; i < keys.length; i++) {
         newCoppiedObj[keys[i]] = recursiveDeepCopy(obj[keys[i]])
     }
+    
+    // store the newCoppiedObj in map
+    map.set(obj, newCoppiedObj)
     return newCoppiedObj
 }
 
