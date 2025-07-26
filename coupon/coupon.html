@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon Options</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-container {
+            width: 320px;
+            padding: 20px;
+        }
+
+        .option-item {
+            background: linear-gradient(135deg, #4a6741 0%, #3d5536 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 18px 30px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            clip-path: polygon(
+                85% 0,
+                100% 50%,
+                85% 100%,
+                15% 100%,
+                0 50%,
+                15% 0
+            );
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            background: linear-gradient(135deg, #5a7751 0%, #4d6546 100%);
+            transform: translateY(-1px);
+            box-shadow: 
+                0 6px 12px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .radio-input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            margin-right: 16px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .radio-input:checked {
+            border-color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .radio-input:checked::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .option-label {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="options-container">
+        <label class="option-item">
+            <input type="radio" name="payment" class="radio-input">
+            <span class="option-label">Redeem Coins</span>
+        </label>
+        <label class="option-item">
+            <input type="radio" name="payment" class="radio-input">
+            <span class="option-label">Pay By Other Mode</span>
+        </label>
+        <label class="option-item">
+            <input type="radio" name="payment" class="radio-input">
+            <span class="option-label">Redeem Coins + Cash</span>
+        </label>
+    </div>
+</body>
+</html>
