@@ -72,3 +72,29 @@ console.log(findLargestNum(arr1), 'findLargestNum')
 
 console.log(Infinity, 'Infinity')
 console.log(-Infinity, '-Infinity')
+
+//Write a function secondLargest(arr) that returns the second largest distinct number in an array.
+
+const findSecondLargest = (arr) => {
+
+    if(arr.length < 2) {
+        return 'Array should have atleast two elements!'
+    }
+
+    let firstLargest = -Infinity;
+    let secondLargest = -Infinity;
+
+    for(let num of arr) {
+
+        // main catch here is if arr[i] is greater than firstLargest then previous firstLargest will be stored in secondLargest and then firstLargest will update.
+        if(num > firstLargest) {
+            secondLargest = firstLargest;
+            firstLargest = num
+        } else if(num > secondLargest && num !== firstLargest) { //this is to handle the case when there are duplicate elements in the array
+            secondLargest = num
+        }
+    }
+    return secondLargest === -Infinity ? 'No second largest found!' : secondLargest
+}
+
+console.log(findSecondLargest(arr1), 'findSecondLargest')

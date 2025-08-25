@@ -3,9 +3,11 @@ const checkPalindromeWithoutMethod = (val) => {
         return `${val} is not palindrome`
     }
 
-    if(typeof val === 'number' && val < 0) {
-        return `${val} is not palindrome`
-    }
+   // Negative numbers are not palindrome
+  if (typeof val === 'number') {
+    if (val < 0) return `${val} is not palindrome`;
+    val = String(val); // convert number to string
+  }
 
     let start = 0;
     let end = val.length - 1;
@@ -25,5 +27,6 @@ console.log(checkPalindromeWithoutMethod([]))
 console.log(checkPalindromeWithoutMethod(null))
 console.log(checkPalindromeWithoutMethod(undefined))
 console.log(checkPalindromeWithoutMethod(NaN))
-console.log(checkPalindromeWithoutMethod(12321))
+console.log(checkPalindromeWithoutMethod(1232144))
 console.log(checkPalindromeWithoutMethod(-1232))
+console.log(checkPalindromeWithoutMethod(10))
