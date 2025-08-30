@@ -13,6 +13,9 @@ const countDigits = (num) => {
     return count;
 }
 
+//time complexity: o(log n)
+//space complexity: o(1)
+
 console.log(countDigits(254323), 'countDigits1')
 console.log(countDigits(-254323), 'countDigits2')
 console.log(countDigits(0), 'countDigits3')

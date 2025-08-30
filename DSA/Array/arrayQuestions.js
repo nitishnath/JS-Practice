@@ -8,6 +8,9 @@ const searchElement = (arr, num) => {
     // return -1;
 
 
+    //time complexity: o(n)
+    //space complexity: o(1)
+
     //using for of loop
     for(let i of arr) {
         if(num === i) {
@@ -25,6 +28,8 @@ console.log(searchElement(arr, 55), 'data3')
 
 
 
+//time complexity: o(n)
+//space complexity: o(1)
 //Write a function that returns the number of negative numbers in an array.
 const findNegativeNumber = (arr) => {
     let negativeCount = 0;
@@ -42,6 +47,8 @@ console.log(findNegativeNumber(arr1), 'findNegativeNumber')
 
 
 
+//time complexity: o(n)
+//space complexity: o(1)
 //Write a function that returns the smallest number in an array.
 const findSmallestNum = (arr) => {
     let smallest = Infinity;
@@ -57,6 +64,8 @@ console.log(findSmallestNum(arr1), 'findSmallestNum')
 
 
 
+//time complexity: o(n)
+//space complexity: o(1)
 //Write a function that returns the largest number in an array.
 const findLargestNum = (arr) => {
     let largest = -Infinity;
@@ -73,6 +82,8 @@ console.log(findLargestNum(arr1), 'findLargestNum')
 console.log(Infinity, 'Infinity')
 console.log(-Infinity, '-Infinity')
 
+//time complexity: o(n)
+//space complexity: o(1)
 //Write a function secondLargest(arr) that returns the second largest distinct number in an array.
 
 const findSecondLargest = (arr) => {
