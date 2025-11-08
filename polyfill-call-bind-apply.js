@@ -46,8 +46,10 @@ Function.prototype.myBind = function (context = {}, ...args) {
   }
 
   context.fun = this;
-  return function (...newArr) {
-    return context.fun(...args, ...newArr);
+
+  // this return function is a clousure and it has parameters ...newArgs because it is called later with arguments(i.e. bindFunc("1cr"))
+  return function (...newArgs) {
+    return context.fun(...args, ...newArgs);
   };
 };
 
