@@ -64,8 +64,18 @@ const inventory = [
 //Using arrow function and destructuring
 console.log(inventory.find(({name}) => name === 'cherries'), 'findObj')
 
-//Array.prototype.flat() && Array.prototype.flatMap()
+//Array.prototype.findIndex()
 
+const findIndexArrWithObj = [
+    {id: 1, name: 'Nitish'},
+    {id: 2, name: 'Nath'}
+]
+// Find the index of object property i.e id === 2
+const findIndex = findIndexArrWithObj.findIndex(userData => userData.id === 2);
+
+console.log(findIndex, 'findIndex of object property')
+
+//Array.prototype.flat() && Array.prototype.flatMap()
 const flatArr = [1, 2, 3, 4];
 
 //output: [[2], [4], [6], [8]]
@@ -89,6 +99,16 @@ const allIndices = indexOfarray.reduce((acc, curr, index) => {
     return acc;
 },[])
 console.log(allIndices, 'allIndices')
+
+const indexOfArrWithObj = [
+    {id: 1, name: 'Nitish'},
+    {id: 2, name: 'Nath'}
+]
+// Find the index of object property i.e id === 2
+const indexOf = indexOfArrWithObj.indexOf(userData => userData.id === 2);
+
+console.log(indexOf, 'indexOf object property') // output -1
+
 
 //Array.prototype.forEach()
 const forEachArr = [5,4,5]
@@ -155,3 +175,25 @@ console.log(Array.prototype.push.call(arraLikePushObjWithoutLength, 1,2,3), 'aft
 console.log(arraLikePushObjWithoutLength, 'after push arraLikePushObjWithoutLength') //{0: 1, 1: 2, 2: 3, length: 3, unrelated: 'foo'}
 
 
+//Array.prototype.slice()
+const sliceArr = ['a', 'b', 'c', 'd', 'e']
+console.log(sliceArr.slice(3, '-1'), 'sliceArr.slice(3, -1)')
+
+const myHonda = {
+  color: "red",
+  wheels: 4,
+  engine: { cylinders: 4, size: 2.2 },
+};
+const myCar = [myHonda, 2, "cherry condition", "purchased 1997"];
+console.log(myCar, 'Slice method in myCar')
+console.log(myCar.slice('0','3'), 'myCar.slice(0,3)')
+console.log(myCar.slice(-2), 'myCar.slice(-2)')
+
+//Array.prototype.splice()
+
+const arraySplice = ["Jan", "March", "April", "June"];
+
+// const newArraySplice1 = arraySplice.splice(2, 2); // output: ["April", "June"]
+const newArraySplice2 = arraySplice.splice(2, 1, 'August', 'September'); // []
+
+console.log(arraySplice, 'arraySplice.splice(2, 2)'); // output: ["Jan", "March", 'August', 'September', 'June']
