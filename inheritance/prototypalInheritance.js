@@ -116,6 +116,14 @@ console.log(nitish, 'after enhanced prototype')
 nitish.sayHello()
 nitish.sayByeEnhanced()
 
+const parent = {value: 10}
+const child = Object.create(parent);
+
+child.value = 20;
+
+console.log(child, 'child')
+console.log(parent, 'parent')
+
 
 
 
