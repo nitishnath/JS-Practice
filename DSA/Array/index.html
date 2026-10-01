@@ -1,12 +1,1206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FlowMind — AI Workspace</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+/* ── Tokens ───────────────────────────────────────────────────────────── */
+:root {
+  --bg:#ffffff; --bg2:#f7f7f5; --bg3:#f0efeb;
+  --border:rgba(0,0,0,0.1); --border2:rgba(0,0,0,0.2);
+  --text:#1a1a18; --text2:#5a5a56; --text3:#9a9a94;
+  --accent:#534AB7; --accent-light:#EEEDFE; --accent-dark:#3C3489;
+  --success:#1D9E75; --success-light:#E1F5EE;
+  --warning:#BA7517; --warning-light:#FAEEDA;
+  --danger:#A32D2D; --danger-light:#FCEBEB;
+  --radius:8px; --radius-lg:12px;
+  --mob-nav:58px;
+}
+[data-theme="dark"] {
+  --bg:#1c1c1a; --bg2:#252523; --bg3:#2e2e2b;
+  --border:rgba(255,255,255,0.1); --border2:rgba(255,255,255,0.2);
+  --text:#e8e8e2; --text2:#a8a8a0; --text3:#686860;
+  --accent:#7F77DD; --accent-light:#26215C; --accent-dark:#AFA9EC;
+  --success:#1D9E75; --success-light:#04342C;
+  --warning:#EF9F27; --warning-light:#412402;
+  --danger:#E24B4A; --danger-light:#501313;
+}
+
+/* ── Reset ─────────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg3);color:var(--text);height:100vh;overflow:hidden;font-size:14px}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+
+/* ── App shell ──────────────────────────────────────────────────────────── */
+#app{display:flex;height:100vh}
+#sidebar{width:230px;min-width:230px;background:var(--bg2);border-right:0.5px solid var(--border);display:flex;flex-direction:column;transition:width .2s,transform .25s;overflow:hidden;z-index:200}
+#sidebar.collapsed{width:52px;min-width:52px}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.sb-logo{padding:14px;font-size:15px;font-weight:600;color:var(--text);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:9px;white-space:nowrap}
+.sb-logo i{font-size:20px;color:var(--accent);flex-shrink:0}
+.sb-logo-text{overflow:hidden;transition:opacity .2s}
+#sidebar.collapsed .sb-logo-text,
+#sidebar.collapsed .sb-label,
+#sidebar.collapsed .ws-name,
+#sidebar.collapsed .user-info,
+#sidebar.collapsed .badge-count,
+#sidebar.collapsed .sb-section{opacity:0;width:0;overflow:hidden}
+.sb-section{padding:14px 14px 5px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 14px;font-size:13px;color:var(--text2);cursor:pointer;border-radius:var(--radius);margin:1px 6px;transition:background .12s;white-space:nowrap;overflow:hidden;user-select:none}
+.sb-item:hover{background:var(--bg)}
+.sb-item.active{background:var(--bg);color:var(--text);font-weight:500}
+.sb-item i{font-size:16px;flex-shrink:0}
+.badge-count{margin-left:auto;font-size:10px;background:var(--bg3);color:var(--text3);padding:1px 6px;border-radius:10px;flex-shrink:0}
+.ws-chip{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:var(--radius);font-size:13px;color:var(--text2);cursor:pointer;margin:1px 6px;transition:background .12s;white-space:nowrap;overflow:hidden}
+.ws-chip:hover{background:var(--bg)}
+.ws-chip.active{background:var(--bg);color:var(--text);font-weight:500}
+.ws-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sb-bottom{margin-top:auto;padding:12px;border-top:0.5px solid var(--border)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0}
+
+/* ── Topbar ─────────────────────────────────────────────────────────────── */
+.topbar{height:50px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:8px;background:var(--bg);flex-shrink:0}
+.topbar-title{font-size:14px;font-weight:500;color:var(--text);flex:1}
+.topbar-search{display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius)}
+.topbar-search input{border:none;background:transparent;outline:none;font-size:12px;color:var(--text);width:140px}
+.topbar-search input::placeholder{color:var(--text3)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;border-radius:var(--radius);border:0.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:background .12s;white-space:nowrap}
+.btn:hover{background:var(--bg2)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-icon{padding:6px 8px}
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+#content{flex:1;overflow:hidden;display:flex}
+.view{display:none;flex:1;overflow:hidden;flex-direction:column}
+.view.active{display:flex}
+
+/* ── Dashboard ──────────────────────────────────────────────────────────── */
+#view-dashboard{overflow-y:auto;padding:20px;gap:18px}
+.dash-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{background:var(--bg2);border-radius:var(--radius);padding:14px 16px}
+.metric-label{font-size:11px;color:var(--text3);margin-bottom:5px}
+.metric-val{font-size:24px;font-weight:500;color:var(--text);line-height:1}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.metric-sub.up{color:var(--success)}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dash-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px}
+.dash-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.act-text{font-size:12px;color:var(--text2);line-height:1.5}
+.act-time{font-size:11px;color:var(--text3);margin-top:2px}
+.task-mini{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border)}
+.task-mini:last-child{border-bottom:none}
+.task-mini-title{font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Pills ──────────────────────────────────────────────────────────────── */
+.pill{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;flex-shrink:0}
+.pill-todo{background:var(--accent-light);color:var(--accent)}
+.pill-wip{background:var(--warning-light);color:var(--warning)}
+.pill-done{background:var(--success-light);color:var(--success)}
+.pill-high{background:var(--danger-light);color:var(--danger)}
+.pill-med{background:var(--warning-light);color:var(--warning)}
+.pill-low{background:var(--success-light);color:var(--success)}
+.embed-badge{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--accent-light);color:var(--accent);font-weight:500}
+
+/* ── Notes ──────────────────────────────────────────────────────────────── */
+#view-notes{flex-direction:row}
+.notes-list{width:230px;min-width:230px;border-right:0.5px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.notes-list-top{padding:10px 8px 8px;border-bottom:0.5px solid var(--border);flex-shrink:0}
+.new-note-btn{width:100%;padding:7px 10px;border-radius:var(--radius);border:0.5px dashed var(--border2);background:transparent;color:var(--text3);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .12s}
+.new-note-btn:hover{background:var(--bg)}
+.notes-search{margin-top:6px;display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius)}
+.notes-search input{border:none;background:transparent;outline:none;font-size:12px;color:var(--text);width:100%}
+.notes-search input::placeholder{color:var(--text3)}
+.notes-list-items{flex:1;padding:6px;overflow-y:auto}
+.note-item{padding:10px;border-radius:var(--radius);cursor:pointer;margin-bottom:2px;border:0.5px solid transparent}
+.note-item:hover{background:var(--bg)}
+.note-item.active{background:var(--bg);border-color:var(--border)}
+.note-item-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-item-preview{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-item-foot{display:flex;align-items:center;gap:6px;margin-top:4px}
+.note-item-date{font-size:10px;color:var(--text3)}
+.note-editor{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.note-toolbar{display:flex;gap:4px;padding:8px 12px;border-bottom:0.5px solid var(--border);align-items:center;flex-wrap:wrap;flex-shrink:0}
+.tool-btn{padding:4px 8px;font-size:12px;border-radius:5px;border:none;background:transparent;color:var(--text2);cursor:pointer;transition:background .12s}
+.tool-btn:hover{background:var(--bg2)}
+.tool-sep{width:0.5px;height:18px;background:var(--border2);margin:0 2px;flex-shrink:0}
+.note-meta{padding:5px 18px;font-size:11px;color:var(--text3);border-bottom:0.5px solid var(--border);display:flex;gap:12px;align-items:center;flex-shrink:0}
+.note-meta a{color:var(--accent);cursor:pointer;text-decoration:none}
+.note-title-input{width:100%;padding:16px 18px 8px;font-size:20px;font-weight:600;color:var(--text);border:none;outline:none;background:transparent;flex-shrink:0}
+.note-body{flex:1;padding:4px 18px 20px;font-size:14px;color:var(--text2);line-height:1.8;outline:none;overflow-y:auto}
+.note-body:empty::before{content:attr(data-placeholder);color:var(--text3);pointer-events:none}
+.note-body h2{font-size:17px;font-weight:600;margin:12px 0 6px;color:var(--text)}
+.note-body h3{font-size:15px;font-weight:600;margin:10px 0 5px;color:var(--text)}
+.note-body ul,.note-body ol{padding-left:20px;margin:6px 0}
+.note-body li{margin:3px 0}
+.note-body blockquote{border-left:3px solid var(--accent);padding-left:12px;color:var(--text3);margin:8px 0}
+.note-body strong{font-weight:600;color:var(--text)}
+.note-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text3)}
+.note-empty i{font-size:38px;opacity:.4}
+
+/* ── Tasks ──────────────────────────────────────────────────────────────── */
+#view-tasks{overflow-y:auto}
+.tasks-header{display:flex;align-items:center;gap:10px;padding:16px 20px 14px;flex-wrap:wrap;flex-shrink:0;border-bottom:0.5px solid var(--border)}
+.tasks-filter{display:flex;gap:6px}
+.filter-btn{padding:5px 12px;border-radius:20px;border:0.5px solid var(--border);font-size:12px;color:var(--text2);background:transparent;cursor:pointer;transition:all .12s}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.kanban-wrap{padding:16px 20px 20px}
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+.kanban-col{background:var(--bg2);border-radius:var(--radius-lg);padding:12px;min-height:120px}
+.kanban-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kanban-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.kanban-count{font-size:11px;background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:10px}
+.task-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.task-card:hover{border-color:var(--border2)}
+.task-card:last-child{margin-bottom:0}
+.task-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:5px}
+.task-card-desc{font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.5}
+.task-card-footer{display:flex;align-items:center;justify-content:space-between}
+.task-due{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px}
+.add-task-btn{width:100%;padding:8px;border-radius:var(--radius);border:0.5px dashed var(--border2);background:transparent;color:var(--text3);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;transition:background .12s}
+.add-task-btn:hover{background:var(--bg)}
+
+/* ── Chat ───────────────────────────────────────────────────────────────── */
+#view-chat{flex-direction:column}
+.chat-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.msg{display:flex;gap:10px;max-width:88%;animation:fadeUp .2s ease}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:2px}
+.msg-avatar.ai{background:var(--accent-light);color:var(--accent)}
+.msg-avatar.user{background:var(--success-light);color:var(--success)}
+.msg-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.65}
+.msg.ai .msg-bubble{background:var(--bg2);color:var(--text);border-radius:4px 12px 12px 12px;border:0.5px solid var(--border)}
+.msg.user .msg-bubble{background:var(--accent);color:#fff;border-radius:12px 4px 12px 12px}
+.msg-footer{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.source-chip{background:var(--bg2);border:0.5px solid var(--border);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--text2);display:flex;align-items:center;gap:3px}
+.typing{display:flex;gap:4px;align-items:center;padding:10px 14px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:blink 1.3s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.chat-hints{padding:8px 18px;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;border-top:0.5px solid var(--border)}
+.hint-chip{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:4px 12px;cursor:pointer;font-size:12px;color:var(--text2);transition:border-color .12s;white-space:nowrap}
+.hint-chip:hover{border-color:var(--accent);color:var(--text)}
+.chat-bar{padding:12px 14px;border-top:0.5px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--bg);flex-shrink:0}
+.chat-input{flex:1;padding:10px 14px;font-size:13px;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);resize:none;outline:none;min-height:42px;max-height:120px;line-height:1.5;transition:border-color .15s}
+.chat-input:focus{border-color:var(--accent)}
+.send-btn{padding:0 14px;border-radius:var(--radius);background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:background .12s;height:42px;flex-shrink:0}
+.send-btn:hover{background:var(--accent-dark)}
+
+/* ── Modal ──────────────────────────────────────────────────────────────── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .15s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:24px;width:400px;max-width:94vw;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:5px;display:block}
+.form-input{width:100%;padding:9px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--accent)}
+select.form-input{cursor:pointer}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+.toast-container{position:fixed;bottom:80px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:2000;pointer-events:none}
+.toast{padding:10px 14px;border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--bg);border:0.5px solid var(--border2);display:flex;align-items:center;gap:8px;animation:slideIn .2s ease;pointer-events:all;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.toast.success{border-left:3px solid var(--success)}
+.toast.error{border-left:3px solid var(--danger)}
+.toast.info{border-left:3px solid var(--accent)}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE STYLES  ≤ 768px
+══════════════════════════════════════════════════════════════════════════ */
+@media (max-width:768px) {
+  /* Sidebar becomes an off-canvas drawer */
+  #sidebar{
+    position:fixed;left:0;top:0;bottom:0;
+    width:260px !important;min-width:260px !important;
+    transform:translateX(-100%);
+    box-shadow:4px 0 24px rgba(0,0,0,.15);
+    z-index:300;
+  }
+  #sidebar.mob-open{transform:translateX(0)}
+  #sidebar.collapsed{width:260px !important;min-width:260px !important;transform:translateX(-100%)}
+  #sidebar.collapsed.mob-open{transform:translateX(0)}
+  /* Make all collapsed-hide rules inactive on mobile open */
+  #sidebar.mob-open .sb-logo-text,
+  #sidebar.mob-open .sb-label,
+  #sidebar.mob-open .ws-name,
+  #sidebar.mob-open .user-info,
+  #sidebar.mob-open .badge-count,
+  #sidebar.mob-open .sb-section{opacity:1;width:auto;overflow:visible}
+
+  /* Overlay behind drawer */
+  #mob-overlay{display:block}
+
+  /* Main always full width */
+  #main{width:100%;margin-left:0}
+
+  /* Topbar adjustments */
+  .topbar{padding:0 12px;gap:6px}
+  .topbar-search{display:none}/* hide search bar on mobile, use icon instead */
+  .topbar-btn-search{display:flex !important}/* show search icon */
+  #btn-toggle-sidebar{display:flex}
+  #btn-collapse-desktop{display:none}
+
+  /* Bottom nav bar */
+  #mob-nav{display:flex}
+
+  /* Content area leaves room for bottom nav */
+  #content{margin-bottom:0}
+  #main{padding-bottom:var(--mob-nav)}
+
+  /* Dashboard: 2-col metrics */
+  .dash-metrics{grid-template-columns:repeat(2,1fr);gap:10px}
+  .dash-row{grid-template-columns:1fr}
+  #view-dashboard{padding:14px;gap:14px}
+
+  /* Notes: list becomes full-screen, editor slides in */
+  #view-notes{position:relative;overflow:hidden}
+  .notes-list{
+    width:100% !important;min-width:unset !important;
+    border-right:none;
+    position:absolute;inset:0;
+    transform:translateX(0);
+    transition:transform .25s ease;
+    z-index:10;
+  }
+  .notes-list.mob-hidden{transform:translateX(-100%)}
+  .note-editor{
+    position:absolute;inset:0;
+    transform:translateX(100%);
+    transition:transform .25s ease;
+    z-index:10;background:var(--bg);
+  }
+  .note-editor.mob-visible{transform:translateX(0)}
+  .mob-back-btn{display:flex !important}
+
+  /* Tasks: kanban stacks vertically */
+  .kanban{grid-template-columns:1fr}
+  .tasks-header{padding:12px 14px 10px}
+  .tasks-filter{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .tasks-filter::-webkit-scrollbar{display:none}
+  .kanban-wrap{padding:12px 14px 80px}
+
+  /* Chat */
+  .chat-messages{padding:12px}
+  .chat-hints{padding:6px 12px;gap:5px}
+  .hint-chip{font-size:11px;padding:3px 10px}
+  .chat-bar{padding:10px 12px}
+  .msg{max-width:95%}
+
+  /* Toast above bottom nav */
+  .toast-container{bottom:70px;right:12px;left:12px}
+  .toast{font-size:12px}
+}
+
+/* ── Mobile-only elements (hidden on desktop) ─────────────────────────── */
+#mob-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;height:var(--mob-nav);
+  background:var(--bg);border-top:0.5px solid var(--border);
+  z-index:200;
+  align-items:stretch;
+}
+.mob-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;color:var(--text3);font-size:10px;font-weight:500;
+  transition:color .15s;padding:6px 0;border:none;background:transparent;
+}
+.mob-nav-item.active{color:var(--accent)}
+.mob-nav-item i{font-size:22px}
+#mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250;cursor:pointer}
+.mob-back-btn{display:none;align-items:center;gap:6px;padding:8px 12px;font-size:13px;color:var(--accent);cursor:pointer;border-bottom:0.5px solid var(--border);flex-shrink:0;background:var(--bg2)}
+.topbar-btn-search{display:none;align-items:center;justify-content:center;padding:6px 8px;border-radius:var(--radius);border:0.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer}
+#btn-toggle-sidebar{display:none}
+
+/* ── Desktop-only adjustments ────────────────────────────────────────── */
+@media (min-width:769px) {
+  .toast-container{bottom:20px}
+  #mob-nav{display:none !important}
+  #mob-overlay{display:none !important}
+  #btn-toggle-sidebar{display:none !important}
+}
+</style>
 </head>
 <body>
-    <h1>Array in JS</h1>
-    <script src="./arrayQuestions.js"></script>
+
+<!-- Mobile drawer overlay -->
+<div id="mob-overlay" onclick="closeMobDrawer()"></div>
+
+<!-- Mobile bottom nav -->
+<nav id="mob-nav" role="navigation" aria-label="Main navigation">
+  <button class="mob-nav-item active" id="mn-dashboard" onclick="switchView('dashboard');setMobNav('dashboard')">
+    <i class="ti ti-layout-dashboard"></i>Home
+  </button>
+  <button class="mob-nav-item" id="mn-notes" onclick="switchView('notes');setMobNav('notes')">
+    <i class="ti ti-file-text"></i>Notes
+  </button>
+  <button class="mob-nav-item" id="mn-tasks" onclick="switchView('tasks');setMobNav('tasks')">
+    <i class="ti ti-checkbox"></i>Tasks
+  </button>
+  <button class="mob-nav-item" id="mn-chat" onclick="switchView('chat');setMobNav('chat')">
+    <i class="ti ti-message-bolt"></i>AI Chat
+  </button>
+</nav>
+
+<div id="app">
+  <!-- ── Sidebar ─────────────────────────────────────────────────── -->
+  <div id="sidebar">
+    <div class="sb-logo">
+      <i class="ti ti-layers-intersect"></i>
+      <span class="sb-logo-text">FlowMind</span>
+    </div>
+
+    <div style="padding:10px 6px 4px">
+      <div class="sb-section">Workspaces</div>
+      <div class="ws-chip active" onclick="selectWorkspace(this,'Product team')">
+        <span class="ws-dot" style="background:#534AB7"></span><span class="ws-name">Product team</span>
+      </div>
+      <div class="ws-chip" onclick="selectWorkspace(this,'Personal')">
+        <span class="ws-dot" style="background:#1D9E75"></span><span class="ws-name">Personal</span>
+      </div>
+      <div class="ws-chip" onclick="selectWorkspace(this,'Side project')">
+        <span class="ws-dot" style="background:#D85A30"></span><span class="ws-name">Side project</span>
+      </div>
+      <div class="ws-chip" onclick="openNewWorkspaceModal()">
+        <span class="ws-dot" style="background:var(--border2)"></span>
+        <span class="ws-name" style="color:var(--text3)">+ New workspace</span>
+      </div>
+    </div>
+
+    <div style="margin-top:6px">
+      <div class="sb-section">Navigation</div>
+      <div class="sb-item active" onclick="switchView('dashboard',this);closeMobDrawer()">
+        <i class="ti ti-layout-dashboard"></i><span class="sb-label">Dashboard</span>
+      </div>
+      <div class="sb-item" onclick="switchView('notes',this);closeMobDrawer()">
+        <i class="ti ti-file-text"></i><span class="sb-label">Notes</span>
+        <span class="badge-count" id="notes-badge">4</span>
+      </div>
+      <div class="sb-item" onclick="switchView('tasks',this);closeMobDrawer()">
+        <i class="ti ti-checkbox"></i><span class="sb-label">Tasks</span>
+        <span class="badge-count" id="tasks-badge">6</span>
+      </div>
+      <div class="sb-item" onclick="switchView('chat',this);closeMobDrawer()">
+        <i class="ti ti-message-bolt"></i><span class="sb-label">AI chat</span>
+      </div>
+    </div>
+
+    <div class="sb-bottom">
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="btn" onclick="toggleTheme()" style="flex:1;justify-content:center;padding:6px" title="Toggle theme">
+          <i class="ti ti-moon" id="theme-icon"></i>
+        </button>
+        <button class="btn" id="btn-collapse-desktop" onclick="toggleSidebar()" style="flex:1;justify-content:center;padding:6px" title="Collapse">
+          <i class="ti ti-layout-sidebar-left-collapse" id="sidebar-icon"></i>
+        </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar">NK</div>
+        <div class="user-info" style="flex:1;min-width:0;overflow:hidden;transition:opacity .2s">
+          <div style="font-size:12px;font-weight:500;color:var(--text);white-space:nowrap">Nitish Kumar</div>
+          <div style="font-size:11px;color:var(--text3)">Free plan</div>
+        </div>
+        <i class="ti ti-settings" style="font-size:15px;color:var(--text3);cursor:pointer;flex-shrink:0"
+           onclick="showToast('Settings panel coming soon','info')"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main ───────────────────────────────────────────────────── -->
+  <div id="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <!-- Mobile: hamburger -->
+      <button id="btn-toggle-sidebar" class="btn btn-icon" onclick="openMobDrawer()" aria-label="Open menu">
+        <i class="ti ti-menu-2" style="font-size:18px"></i>
+      </button>
+
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+
+      <!-- Desktop search -->
+      <div class="topbar-search">
+        <i class="ti ti-search" style="font-size:13px;color:var(--text3)"></i>
+        <input type="text" placeholder="Search workspace…" id="global-search" oninput="globalSearch(this.value)">
+      </div>
+
+      <!-- Mobile search icon -->
+      <button class="topbar-btn-search btn btn-icon" onclick="openSearchModal()" aria-label="Search">
+        <i class="ti ti-search" style="font-size:17px"></i>
+      </button>
+
+      <button class="btn" onclick="switchView('chat')" style="padding:6px 10px">
+        <i class="ti ti-message-bolt" style="font-size:14px"></i>
+        <span class="hide-xs">Ask AI</span>
+      </button>
+      <button class="btn btn-primary" onclick="topbarAction()" style="padding:6px 10px">
+        <i class="ti ti-plus" style="font-size:14px"></i>
+        <span id="action-label" class="hide-xs">New note</span>
+      </button>
+    </div>
+
+    <!-- Content views -->
+    <div id="content">
+
+      <!-- ── DASHBOARD ─────────────────────────────────── -->
+      <div id="view-dashboard" class="view active">
+        <div style="padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex:1;padding-bottom:24px">
+          <div class="dash-metrics">
+            <div class="metric"><div class="metric-label">Notes</div><div class="metric-val" id="dash-notes-count">4</div><div class="metric-sub up">+1 this week</div></div>
+            <div class="metric"><div class="metric-label">Open tasks</div><div class="metric-val" id="dash-tasks-count">4</div><div class="metric-sub">2 due today</div></div>
+            <div class="metric"><div class="metric-label">AI queries</div><div class="metric-val" id="dash-queries">12</div><div class="metric-sub up">this week</div></div>
+            <div class="metric"><div class="metric-label">Indexed docs</div><div class="metric-val" id="dash-indexed">2</div><div class="metric-sub">for RAG</div></div>
+          </div>
+          <div class="dash-row">
+            <div class="dash-card">
+              <div class="dash-card-title">
+                Recent activity
+                <span style="font-size:11px;color:var(--text3);font-weight:400">today</span>
+              </div>
+              <div id="activity-feed">
+                <div class="activity-item"><span class="act-dot" style="background:#534AB7"></span><div><div class="act-text">Note "Q3 roadmap" updated</div><div class="act-time">10 min ago</div></div></div>
+                <div class="activity-item"><span class="act-dot" style="background:#1D9E75"></span><div><div class="act-text">Task "Design system audit" moved to done</div><div class="act-time">1 hr ago</div></div></div>
+                <div class="activity-item"><span class="act-dot" style="background:#7F77DD"></span><div><div class="act-text">AI answered "What's the Q3 priority?"</div><div class="act-time">2 hr ago</div></div></div>
+                <div class="activity-item"><span class="act-dot" style="background:#D85A30"></span><div><div class="act-text">PDF "spec-v2.pdf" uploaded &amp; indexed</div><div class="act-time">Yesterday</div></div></div>
+              </div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-title">
+                Open tasks
+                <button class="btn" style="padding:3px 9px;font-size:11px" onclick="switchView('tasks');setMobNav('tasks')">View all</button>
+              </div>
+              <div id="dash-task-list"></div>
+            </div>
+          </div>
+          <!-- Quick actions on mobile -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="quick-actions">
+            <button class="btn" style="justify-content:center;padding:12px;border-radius:var(--radius-lg)" onclick="addNote();switchView('notes');setMobNav('notes')">
+              <i class="ti ti-file-plus" style="font-size:15px"></i>&nbsp; New note
+            </button>
+            <button class="btn" style="justify-content:center;padding:12px;border-radius:var(--radius-lg)" onclick="openAddTaskModal('todo')">
+              <i class="ti ti-checkbox" style="font-size:15px"></i>&nbsp; New task
+            </button>
+            <button class="btn btn-primary" style="justify-content:center;padding:12px;border-radius:var(--radius-lg);grid-column:span 2" onclick="switchView('chat');setMobNav('chat')">
+              <i class="ti ti-message-bolt" style="font-size:15px"></i>&nbsp; Ask FlowMind AI
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NOTES ──────────────────────────────────────── -->
+      <div id="view-notes" class="view">
+        <!-- Notes list panel -->
+        <div class="notes-list" id="notes-list-panel">
+          <div class="notes-list-top">
+            <button class="new-note-btn" onclick="addNote()">
+              <i class="ti ti-plus" style="font-size:13px"></i> New note
+            </button>
+            <div class="notes-search" style="margin-top:8px">
+              <i class="ti ti-search" style="font-size:13px;color:var(--text3)"></i>
+              <input type="text" placeholder="Search notes…" oninput="filterNotes(this.value)">
+            </div>
+          </div>
+          <div class="notes-list-items" id="notes-list-items"></div>
+        </div>
+
+        <!-- Note editor panel -->
+        <div class="note-editor" id="note-editor-panel">
+          <!-- Mobile back button -->
+          <div class="mob-back-btn" onclick="showNotesList()">
+            <i class="ti ti-arrow-left" style="font-size:15px"></i>
+            <span>All notes</span>
+          </div>
+
+          <!-- Empty state -->
+          <div class="note-empty" id="note-empty">
+            <i class="ti ti-file-text"></i>
+            <span style="font-size:13px;text-align:center">Select or create a note</span>
+            <button class="btn btn-primary" onclick="addNote()" style="margin-top:4px">
+              <i class="ti ti-plus" style="font-size:13px"></i> New note
+            </button>
+          </div>
+
+          <!-- Editing state -->
+          <div id="note-editing" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+            <div class="note-toolbar">
+              <button class="tool-btn" onclick="fmt('bold')"><b>B</b></button>
+              <button class="tool-btn" onclick="fmt('italic')"><i>I</i></button>
+              <button class="tool-btn" onclick="fmt('underline')" style="text-decoration:underline">U</button>
+              <div class="tool-sep"></div>
+              <button class="tool-btn" onclick="fmt('h1')">H1</button>
+              <button class="tool-btn" onclick="fmt('h2')">H2</button>
+              <div class="tool-sep"></div>
+              <button class="tool-btn" onclick="fmt('ul')"><i class="ti ti-list" style="font-size:13px"></i></button>
+              <button class="tool-btn" onclick="fmt('ol')"><i class="ti ti-list-numbers" style="font-size:13px"></i></button>
+              <button class="tool-btn" onclick="fmt('blockquote')"><i class="ti ti-blockquote" style="font-size:13px"></i></button>
+              <div class="tool-sep"></div>
+              <button class="tool-btn" onclick="fmt('undo')"><i class="ti ti-arrow-back-up" style="font-size:13px"></i></button>
+              <button class="tool-btn" onclick="fmt('redo')"><i class="ti ti-arrow-forward-up" style="font-size:13px"></i></button>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+                <span class="embed-badge" id="embed-status">Indexed</span>
+                <button class="btn" onclick="deleteCurrentNote()" style="padding:4px 8px;color:var(--danger)">
+                  <i class="ti ti-trash" style="font-size:12px"></i>
+                </button>
+                <button class="btn btn-primary" onclick="saveNote()" style="padding:5px 11px;font-size:12px">Save</button>
+              </div>
+            </div>
+            <div class="note-meta" id="note-meta">
+              <span id="note-meta-text">Auto-saved</span>
+              <span>·</span>
+              <a onclick="switchView('chat');setMobNav('chat')">Ask AI</a>
+            </div>
+            <input class="note-title-input" id="note-title" placeholder="Untitled note" oninput="noteChanged()">
+            <div class="note-body" id="note-body" contenteditable="true"
+                 data-placeholder="Start writing your note…" oninput="noteChanged()" spellcheck="false"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TASKS ──────────────────────────────────────── -->
+      <div id="view-tasks" class="view">
+        <div class="tasks-header">
+          <div style="font-size:13px;font-weight:500;color:var(--text);flex:1">All tasks</div>
+          <div class="tasks-filter">
+            <button class="filter-btn active" onclick="filterTasks('all',this)">All</button>
+            <button class="filter-btn" onclick="filterTasks('high',this)">High priority</button>
+            <button class="filter-btn" onclick="filterTasks('today',this)">Due today</button>
+          </div>
+          <button class="btn btn-primary" onclick="openAddTaskModal('todo')" style="padding:5px 10px">
+            <i class="ti ti-plus" style="font-size:13px"></i>
+            <span class="hide-xs">New task</span>
+          </button>
+        </div>
+        <div class="kanban-wrap" style="overflow-y:auto;flex:1">
+          <div class="kanban">
+            <div class="kanban-col">
+              <div class="kanban-header">
+                <span class="kanban-title" style="display:flex;align-items:center;gap:6px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span> Todo
+                </span>
+                <span class="kanban-count" id="col-todo-count">0</span>
+              </div>
+              <div id="col-todo"></div>
+              <button class="add-task-btn" onclick="openAddTaskModal('todo')">
+                <i class="ti ti-plus" style="font-size:13px"></i> Add task
+              </button>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-header">
+                <span class="kanban-title" style="display:flex;align-items:center;gap:6px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--warning);display:inline-block"></span> In progress
+                </span>
+                <span class="kanban-count" id="col-wip-count">0</span>
+              </div>
+              <div id="col-wip"></div>
+              <button class="add-task-btn" onclick="openAddTaskModal('wip')">
+                <i class="ti ti-plus" style="font-size:13px"></i> Add task
+              </button>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-header">
+                <span class="kanban-title" style="display:flex;align-items:center;gap:6px">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block"></span> Done
+                </span>
+                <span class="kanban-count" id="col-done-count">0</span>
+              </div>
+              <div id="col-done"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CHAT ───────────────────────────────────────── -->
+      <div id="view-chat" class="view">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-hints" id="chat-hints">
+          <span style="font-size:11px;color:var(--text3);align-self:center;flex-shrink:0">Try:</span>
+          <span class="hint-chip" onclick="useHint(this)">Summarise my Q3 roadmap</span>
+          <span class="hint-chip" onclick="useHint(this)">What tasks are high priority?</span>
+          <span class="hint-chip" onclick="useHint(this)">Draft a standup update</span>
+          <span class="hint-chip" onclick="useHint(this)">Architecture decisions?</span>
+        </div>
+        <div class="chat-bar">
+          <textarea class="chat-input" id="chat-input"
+            placeholder="Ask anything about your workspace…"
+            rows="1"
+            onkeydown="chatKeyDown(event)"
+            oninput="autoResize(this)"></textarea>
+          <button class="send-btn" onclick="sendChat()" aria-label="Send">
+            <i class="ti ti-send" style="font-size:15px"></i>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /#content -->
+  </div><!-- /#main -->
+</div><!-- /#app -->
+
+<div class="toast-container" id="toast-container"></div>
+<div id="modal-container"></div>
+
+<style>
+/* Utility: hide text labels on very small screens */
+@media(max-width:400px){.hide-xs{display:none}}
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════
+let currentView='dashboard', activeNoteIdx=-1, isAiTyping=false;
+let aiQueryCount=12, taskFilter='all', sidebarCollapsed=false, darkMode=false;
+let selectedWsColor='#534AB7';
+const chatHistory=[];
+
+const notes=[
+  {id:1,title:'Q3 roadmap',body:'Key priorities for Q3:\n\n• Launch RAG-powered AI chat\n• Onboard 3 enterprise customers\n• Reduce API latency by 30%\n• Ship mobile-responsive dashboard\n\nSuccess metrics: 500 active users, &lt;2s response time.\nDeadline: September 30th.',date:'Today, 10:41 AM',embedded:true},
+  {id:2,title:'Meeting notes — 14 Jun',body:'Attendees: Nitish, Priya, Rahul\n\nAction items:\n• Nitish — finalise auth flow by Friday\n• Priya  — design review of dashboard\n• Rahul  — backend vector search config\n\nNext meeting: 21 Jun, 3 PM IST',date:'Yesterday',embedded:true},
+  {id:3,title:'Architecture decisions',body:'ADR-001: MongoDB Atlas Vector Search\nReason: Native Mongoose integration, free tier sufficient.\n\nADR-002: SSE over WebSockets\nReason: Simpler infra, one-directional stream.\n\nADR-003: LangChain.js for RAG\nReason: Faster prototyping, good TypeScript support.',date:'2 days ago',embedded:false},
+  {id:4,title:'Personal todo',body:'• Review open PRs\n• Update LinkedIn profile\n• Prep FlowMind demo for Friday\n• Read about LangGraph',date:'3 days ago',embedded:false}
+];
+
+const tasks=[
+  {id:1,title:'Write API docs',desc:'Document all REST endpoints with examples',priority:'med',due:'Jun 20',status:'todo',assignee:'NK'},
+  {id:2,title:'Deploy to Railway',desc:'Production deployment with env variables',priority:'high',due:'Jun 18',status:'todo',assignee:'NK'},
+  {id:3,title:'Set up RAG pipeline',desc:'LangChain + Atlas Vector Search integration',priority:'high',due:'Jun 17',status:'wip',assignee:'NK'},
+  {id:4,title:'SSE streaming UI',desc:'StreamingText component with real-time tokens',priority:'med',due:'Jun 19',status:'wip',assignee:'NK'},
+  {id:5,title:'Design system audit',desc:'WCAG compliance and component consistency',priority:'low',due:'Jun 15',status:'done',assignee:'NK'},
+  {id:6,title:'Auth flow — JWT',desc:'Register, login, refresh token endpoints',priority:'high',due:'Jun 14',status:'done',assignee:'NK'}
+];
+
+const aiKb={
+  q3:'Based on your **Q3 roadmap** note:\n\n• Launch RAG-powered AI chat\n• Onboard 3 enterprise customers\n• Reduce API latency by 30%\n• Ship mobile-responsive dashboard\n\nTarget: 500 active users, <2s response. Deadline: **September 30th**.\n\n',
+  priority:'You have **3 high-priority tasks**:\n\n1. 🔴 Deploy to Railway (Jun 18) — Todo\n2. 🔴 Set up RAG pipeline (Jun 17) — In progress\n3. ✅ Auth flow — JWT (Jun 14) — Done\n\nMost urgent open: **RAG pipeline setup**, due today!\n\n',
+  standup:'Standup update from your workspace:\n\n✅ **Yesterday:** Completed design system audit and JWT auth flow.\n\n🔄 **Today:** Working on RAG pipeline (LangChain + Atlas) and SSE streaming UI.\n\n⚠️ **Blockers:** Railway deployment needs prod env vars configured.\n\n',
+  architecture:'From your **Architecture decisions** note:\n\n**ADR-001:** MongoDB Atlas Vector Search — native Mongoose integration, free tier sufficient.\n\n**ADR-002:** SSE over WebSockets — simpler infra, one-directional stream.\n\n**ADR-003:** LangChain.js — faster prototyping, good TypeScript support.\n\n',
+  meeting:'From your **Meeting notes — 14 Jun**:\n\n**Action items:**\n• Nitish — finalise auth flow by Friday\n• Priya — design review of dashboard\n• Rahul — backend vector search config\n\nNext meeting: **21 Jun, 3 PM IST**.\n\n'
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  MOBILE HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+function isMobile(){return window.innerWidth<=768}
+
+function openMobDrawer(){
+  document.getElementById('sidebar').classList.add('mob-open');
+  document.getElementById('mob-overlay').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function closeMobDrawer(){
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('mob-overlay').style.display='none';
+  document.body.style.overflow='';
+}
+
+function setMobNav(v){
+  document.querySelectorAll('.mob-nav-item').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('mn-'+v);
+  if(el)el.classList.add('active');
+}
+
+// Notes mobile panel toggling
+function showNoteEditor(){
+  if(!isMobile())return;
+  document.getElementById('notes-list-panel').classList.add('mob-hidden');
+  document.getElementById('note-editor-panel').classList.add('mob-visible');
+}
+function showNotesList(){
+  if(!isMobile())return;
+  document.getElementById('notes-list-panel').classList.remove('mob-hidden');
+  document.getElementById('note-editor-panel').classList.remove('mob-visible');
+}
+
+function openSearchModal(){
+  showModal(`
+    <div class="modal-title">Search workspace</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);margin-bottom:16px">
+      <i class="ti ti-search" style="font-size:16px;color:var(--text3)"></i>
+      <input class="form-input" id="mob-search-inp" placeholder="Search notes, tasks…"
+        style="border:none;background:transparent;padding:0;font-size:14px"
+        oninput="mobSearchResults(this.value)" autofocus>
+    </div>
+    <div id="mob-search-results" style="max-height:300px;overflow-y:auto"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>
+  `);
+}
+
+function mobSearchResults(q){
+  const el=document.getElementById('mob-search-results');
+  if(!q){el.innerHTML='';return}
+  const noteRes=notes.filter(n=>n.title.toLowerCase().includes(q.toLowerCase())||n.body.toLowerCase().includes(q.toLowerCase()));
+  const taskRes=tasks.filter(t=>t.title.toLowerCase().includes(q.toLowerCase()));
+  let html='';
+  if(noteRes.length){html+=`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Notes</div>`;
+    html+=noteRes.map(n=>`<div onclick="closeModal();switchView('notes');setMobNav('notes');setTimeout(()=>selectNote(${notes.indexOf(n)}),100)" style="padding:10px;border-radius:var(--radius);cursor:pointer;margin-bottom:4px;border:0.5px solid var(--border)" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''"><div style="font-size:13px;font-weight:500;color:var(--text)">${n.title}</div><div style="font-size:11px;color:var(--text3)">${n.body.replace(/<[^>]+>/g,'').slice(0,60)}…</div></div>`).join('');}
+  if(taskRes.length){html+=`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;margin:10px 0 6px">Tasks</div>`;
+    html+=taskRes.map(t=>`<div onclick="closeModal();switchView('tasks');setMobNav('tasks');setTimeout(()=>openTaskDetail(${t.id}),100)" style="padding:10px;border-radius:var(--radius);cursor:pointer;margin-bottom:4px;border:0.5px solid var(--border);display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''"><span class="pill pill-${t.status==='wip'?'wip':t.status}">${t.status==='wip'?'WIP':t.status}</span><span style="font-size:13px;color:var(--text)">${t.title}</span></div>`).join('');}
+  if(!noteRes.length&&!taskRes.length)html='<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No results for "'+q+'"</div>';
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  VIEW SWITCHING
+// ═══════════════════════════════════════════════════════════════════════
+function switchView(v,sbEl){
+  currentView=v;
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(sbEl)sbEl.classList.add('active');
+
+  const labels={dashboard:'Dashboard',notes:'Notes',tasks:'Tasks',chat:'AI chat'};
+  const actions={dashboard:'New note',notes:'New note',tasks:'New task',chat:'Upload doc'};
+  document.getElementById('topbar-title').textContent=labels[v];
+  document.getElementById('action-label').textContent=actions[v];
+
+  // reset notes mobile panels
+  if(v==='notes'){
+    renderNotesList();
+    if(isMobile()){showNotesList();}
+  }
+  if(v==='tasks')renderTasks();
+  if(v==='dashboard')renderDashboard();
+  if(v==='chat'&&chatHistory.length===0)renderInitialChat();
+  setMobNav(v);
+}
+
+function topbarAction(){
+  if(currentView==='dashboard'||currentView==='notes'){
+    if(currentView==='dashboard')switchView('notes');
+    addNote();
+  }else if(currentView==='tasks'){openAddTaskModal('todo');}
+  else{showToast('Doc upload: comes in Days 9–10 of your build plan!','info');}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════
+function renderDashboard(){
+  document.getElementById('dash-notes-count').textContent=notes.length;
+  document.getElementById('dash-tasks-count').textContent=tasks.filter(t=>t.status!=='done').length;
+  document.getElementById('dash-queries').textContent=aiQueryCount;
+  document.getElementById('dash-indexed').textContent=notes.filter(n=>n.embedded).length;
+  document.getElementById('notes-badge').textContent=notes.length;
+  document.getElementById('tasks-badge').textContent=tasks.length;
+  const el=document.getElementById('dash-task-list');
+  const open=tasks.filter(t=>t.status!=='done').slice(0,4);
+  el.innerHTML=open.length
+    ?open.map(t=>`<div class="task-mini"><span class="pill pill-${t.status==='wip'?'wip':'todo'}">${t.status==='wip'?'In progress':'Todo'}</span><span class="task-mini-title">${t.title}</span><span class="pill pill-${t.priority}">${t.priority.charAt(0).toUpperCase()+t.priority.slice(1)}</span></div>`).join('')
+    :'<div style="padding:12px 0;font-size:12px;color:var(--text3)">All tasks complete! 🎉</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  NOTES
+// ═══════════════════════════════════════════════════════════════════════
+function renderNotesList(q=''){
+  const el=document.getElementById('notes-list-items');
+  const filtered=q?notes.filter(n=>n.title.toLowerCase().includes(q.toLowerCase())||n.body.toLowerCase().includes(q.toLowerCase())):notes;
+  el.innerHTML=filtered.length
+    ?filtered.map(n=>`<div class="note-item ${notes.indexOf(n)===activeNoteIdx?'active':''}" onclick="selectNote(${notes.indexOf(n)})">
+        <div class="note-item-title">${n.title||'Untitled'}</div>
+        <div class="note-item-preview">${n.body.replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').slice(0,42)}…</div>
+        <div class="note-item-foot">
+          <span class="note-item-date">${n.date}</span>
+          ${n.embedded?'<span class="embed-badge">Indexed</span>':''}
+        </div>
+      </div>`).join('')
+    :'<div style="padding:20px 12px;font-size:12px;color:var(--text3);text-align:center">No notes found</div>';
+  document.getElementById('notes-badge').textContent=notes.length;
+}
+
+function filterNotes(q){renderNotesList(q)}
+
+function selectNote(i){
+  activeNoteIdx=i;
+  const n=notes[i];
+  document.getElementById('note-empty').style.display='none';
+  document.getElementById('note-editing').style.display='flex';
+  document.getElementById('note-title').value=n.title;
+  document.getElementById('note-body').innerHTML=n.body.replace(/\n/g,'<br>');
+  updateEmbedBadge(n.embedded);
+  document.getElementById('note-meta-text').textContent=n.date;
+  renderNotesList();
+  if(isMobile())showNoteEditor();
+}
+
+function updateEmbedBadge(e){
+  const el=document.getElementById('embed-status');
+  el.textContent=e?'Indexed':'Not indexed';
+  el.style.background=e?'var(--accent-light)':'var(--bg3)';
+  el.style.color=e?'var(--accent)':'var(--text3)';
+}
+
+function noteChanged(){
+  if(activeNoteIdx<0)return;
+  notes[activeNoteIdx].title=document.getElementById('note-title').value;
+  notes[activeNoteIdx].body=document.getElementById('note-body').innerHTML;
+  document.getElementById('note-meta-text').textContent='Unsaved changes…';
+  notes[activeNoteIdx].embedded=false;
+  updateEmbedBadge(false);
+}
+
+function saveNote(){
+  if(activeNoteIdx<0)return;
+  notes[activeNoteIdx].embedded=true;
+  notes[activeNoteIdx].date='Just now';
+  document.getElementById('note-meta-text').textContent='Saved & indexed ✓';
+  updateEmbedBadge(true);
+  renderNotesList();
+  addActivity(`Note "${notes[activeNoteIdx].title||'Untitled'}" saved & indexed`,'#534AB7');
+  renderDashboard();
+  showToast('Note saved and indexed for AI','success');
+}
+
+function addNote(){
+  notes.unshift({id:Date.now(),title:'',body:'',date:'Just now',embedded:false});
+  activeNoteIdx=0;
+  renderNotesList();
+  document.getElementById('note-empty').style.display='none';
+  document.getElementById('note-editing').style.display='flex';
+  document.getElementById('note-title').value='';
+  document.getElementById('note-body').innerHTML='';
+  updateEmbedBadge(false);
+  document.getElementById('note-meta-text').textContent='New note';
+  if(isMobile())showNoteEditor();
+  setTimeout(()=>document.getElementById('note-title').focus(),80);
+}
+
+function deleteCurrentNote(){
+  if(activeNoteIdx<0)return;
+  if(!confirm(`Delete "${notes[activeNoteIdx].title||'Untitled'}"?`))return;
+  notes.splice(activeNoteIdx,1);
+  activeNoteIdx=-1;
+  document.getElementById('note-empty').style.display='flex';
+  document.getElementById('note-editing').style.display='none';
+  renderNotesList();
+  renderDashboard();
+  if(isMobile())showNotesList();
+  showToast('Note deleted','info');
+}
+
+function fmt(cmd){
+  document.getElementById('note-body').focus();
+  if(cmd==='h1'){document.execCommand('formatBlock',false,'h2');return;}
+  if(cmd==='h2'){document.execCommand('formatBlock',false,'h3');return;}
+  if(cmd==='ul'){document.execCommand('insertUnorderedList');return;}
+  if(cmd==='ol'){document.execCommand('insertOrderedList');return;}
+  if(cmd==='blockquote'){document.execCommand('formatBlock',false,'blockquote');return;}
+  document.execCommand(cmd);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TASKS
+// ═══════════════════════════════════════════════════════════════════════
+function renderTasks(){
+  let filtered=[...tasks];
+  if(taskFilter==='high')filtered=tasks.filter(t=>t.priority==='high');
+  if(taskFilter==='today')filtered=tasks.filter(t=>t.due==='Jun 17'||t.due==='Jun 18');
+  ['todo','wip','done'].forEach(s=>{
+    const col=document.getElementById('col-'+s);
+    const grp=filtered.filter(t=>t.status===s);
+    col.innerHTML=grp.map(t=>`
+      <div class="task-card" onclick="openTaskDetail(${t.id})">
+        <div class="task-card-title">${t.title}</div>
+        <div class="task-card-desc">${t.desc}</div>
+        <div class="task-card-footer">
+          <span class="task-due"><i class="ti ti-calendar" style="font-size:11px"></i> ${t.due}</span>
+          <span class="pill pill-${t.priority}">${t.priority.charAt(0).toUpperCase()+t.priority.slice(1)}</span>
+        </div>
+      </div>`).join('');
+    document.getElementById('col-'+(s==='wip'?'wip':s)+'-count').textContent=grp.length;
+  });
+  document.getElementById('tasks-badge').textContent=tasks.length;
+}
+
+function filterTasks(f,el){
+  taskFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
+}
+
+function openTaskDetail(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const nextLabel={todo:'Move to In progress',wip:'Move to Done',done:'Move back to Todo'};
+  showModal(`
+    <div class="modal-title">${t.title}</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">${t.desc}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
+      <div><div class="form-label">Status</div><span class="pill pill-${t.status}">${t.status==='wip'?'In progress':t.status.charAt(0).toUpperCase()+t.status.slice(1)}</span></div>
+      <div><div class="form-label">Priority</div><span class="pill pill-${t.priority}">${t.priority.charAt(0).toUpperCase()+t.priority.slice(1)}</span></div>
+      <div><div class="form-label">Due date</div><span style="font-size:12px;color:var(--text2)">${t.due}</span></div>
+      <div><div class="form-label">Assignee</div><div style="display:flex;align-items:center;gap:6px"><div class="avatar" style="width:22px;height:22px;font-size:9px">${t.assignee}</div><span style="font-size:12px;color:var(--text2)">Nitish K.</span></div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="color:var(--danger)" onclick="deleteTask(${id})"><i class="ti ti-trash" style="font-size:13px"></i> Delete</button>
+      <button class="btn" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" onclick="cycleTask(${id})">${nextLabel[t.status]}</button>
+    </div>`);
+}
+
+function cycleTask(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const cycle={todo:'wip',wip:'done',done:'todo'};
+  t.status=cycle[t.status];
+  closeModal();renderTasks();renderDashboard();
+  addActivity(`Task "${t.title}" → ${t.status==='wip'?'In progress':t.status}`,'#1D9E75');
+  showToast(`Moved to ${t.status==='wip'?'In progress':t.status}`,'success');
+}
+
+function deleteTask(id){
+  if(!confirm('Delete this task?'))return;
+  const idx=tasks.findIndex(x=>x.id===id);
+  if(idx>-1)tasks.splice(idx,1);
+  closeModal();renderTasks();renderDashboard();
+  showToast('Task deleted','info');
+}
+
+function openAddTaskModal(def){
+  showModal(`
+    <div class="modal-title">New task</div>
+    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="m-title" placeholder="What needs to be done?" autofocus></div>
+    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="m-desc" placeholder="Optional details"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group"><label class="form-label">Priority</label>
+        <select class="form-input" id="m-priority">
+          <option value="low">Low</option><option value="med" selected>Medium</option><option value="high">High</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-input" id="m-status">
+          <option value="todo" ${def==='todo'?'selected':''}>Todo</option>
+          <option value="wip" ${def==='wip'?'selected':''}>In progress</option>
+          <option value="done" ${def==='done'?'selected':''}>Done</option>
+        </select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Due date</label><input class="form-input" id="m-due" placeholder="e.g. Jun 25"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitNewTask()">Create task</button>
+    </div>`);
+}
+
+function submitNewTask(){
+  const title=document.getElementById('m-title').value.trim();
+  if(!title){document.getElementById('m-title').focus();return;}
+  tasks.unshift({
+    id:Date.now(),title,
+    desc:document.getElementById('m-desc').value.trim()||'No description',
+    priority:document.getElementById('m-priority').value,
+    due:document.getElementById('m-due').value.trim()||'TBD',
+    status:document.getElementById('m-status').value,
+    assignee:'NK'
+  });
+  closeModal();renderTasks();renderDashboard();
+  addActivity(`Task "${title}" created`,'#534AB7');
+  showToast('Task created','success');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CHAT
+// ═══════════════════════════════════════════════════════════════════════
+function renderInitialChat(){
+  const indexed=notes.filter(n=>n.embedded).length;
+  appendMsg('ai',`Hi Nitish! I'm your FlowMind AI assistant.\n\nI have access to **${notes.length} notes** and **${tasks.length} tasks** in your workspace. **${indexed} notes** are indexed for semantic search.\n\nAsk me anything — I'll search your workspace before answering.`,[]);
+}
+
+function appendMsg(role,text,sources){
+  const c=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className='msg '+role;
+  const init=role==='ai'?'<i class="ti ti-sparkles" style="font-size:13px"></i>':'NK';
+  const html=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  const srcHtml=(sources&&sources.length)
+    ?`<div class="msg-footer"><i class="ti ti-database" style="font-size:11px;color:var(--text3)"></i>${sources.map(s=>`<span class="source-chip"><i class="ti ti-file-text" style="font-size:10px"></i>${s}</span>`).join('')}</div>`
+    :(role==='ai'?`<div class="msg-footer"><i class="ti ti-database" style="font-size:11px;color:var(--text3)"></i><span style="font-size:11px;color:var(--text3)">Workspace searched</span></div>`:'');
+  div.innerHTML=`<div class="msg-avatar ${role}">${init}</div><div><div class="msg-bubble">${html}</div>${srcHtml}</div>`;
+  c.appendChild(div);
+  c.scrollTop=c.scrollHeight;
+  chatHistory.push({role,text});
+}
+
+function showTyping(){
+  const c=document.getElementById('chat-messages');
+  const d=document.createElement('div');
+  d.className='msg ai';d.id='typing-indicator';
+  d.innerHTML=`<div class="msg-avatar ai"><i class="ti ti-sparkles" style="font-size:13px"></i></div><div><div class="msg-bubble"><div class="typing"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div></div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function hideTyping(){const el=document.getElementById('typing-indicator');if(el)el.remove();}
+
+function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const msg=inp.value.trim();
+  if(!msg||isAiTyping)return;
+  inp.value='';inp.style.height='';
+  document.getElementById('chat-hints').style.display='none';
+  appendMsg('user',msg,null);
+  isAiTyping=true;showTyping();aiQueryCount++;
+  setTimeout(()=>{
+    hideTyping();
+    const k=msg.toLowerCase();
+    let reply='',sources=[];
+    if(k.includes('q3')||k.includes('roadmap')){reply=aiKb.q3;sources=['Q3 roadmap'];}
+    else if(k.includes('high priority')||k.includes('priority')){reply=aiKb.priority;}
+    else if(k.includes('standup')||k.includes('stand up')){reply=aiKb.standup;sources=['Q3 roadmap','Tasks'];}
+    else if(k.includes('architect')||k.includes('adr')){reply=aiKb.architecture;sources=['Architecture decisions'];}
+    else if(k.includes('meeting')||k.includes('action item')){reply=aiKb.meeting;sources=['Meeting notes — 14 Jun'];}
+    else if(k.includes('how many note')){reply=`You have **${notes.length} notes** total. **${notes.filter(n=>n.embedded).length}** are indexed:\n\n${notes.filter(n=>n.embedded).map(n=>'• '+n.title).join('\n')}`;}
+    else if(k.includes('how many task')){
+      const o=tasks.filter(t=>t.status!=='done');
+      reply=`**${tasks.length} tasks** total:\n\n• **${tasks.filter(t=>t.status==='todo').length}** todo\n• **${tasks.filter(t=>t.status==='wip').length}** in progress\n• **${tasks.filter(t=>t.status==='done').length}** done\n\nMost urgent: **${o.sort((a,b)=>a.priority==='high'?-1:1)[0]?.title||'none'}**`;
+    }else{
+      reply=`I searched your workspace for **"${msg}"** and found relevant context.\n\nBased on your notes and task board:\n\n• Your Q3 roadmap may relate to this topic\n• ${tasks.filter(t=>t.status==='wip').length} tasks are in progress\n• Your architecture decisions note has relevant context\n\nWant me to look at a specific note or task?`;
+      sources=notes.filter(n=>n.embedded).slice(0,2).map(n=>n.title);
+    }
+    appendMsg('ai',reply,sources);
+    isAiTyping=false;
+    if(currentView==='dashboard')renderDashboard();
+  },1100+Math.random()*700);
+}
+
+function useHint(el){document.getElementById('chat-input').value=el.textContent.trim();sendChat();}
+function chatKeyDown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+function autoResize(el){el.style.height='';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ACTIVITY
+// ═══════════════════════════════════════════════════════════════════════
+function addActivity(text,color){
+  const feed=document.getElementById('activity-feed');if(!feed)return;
+  const d=document.createElement('div');d.className='activity-item';
+  d.innerHTML=`<span class="act-dot" style="background:${color}"></span><div><div class="act-text">${text}</div><div class="act-time">Just now</div></div>`;
+  feed.insertBefore(d,feed.firstChild);
+  if(feed.children.length>5)feed.lastChild.remove();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  WORKSPACES
+// ═══════════════════════════════════════════════════════════════════════
+function selectWorkspace(el,name){
+  document.querySelectorAll('.ws-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  closeMobDrawer();
+  showToast(`Switched to "${name}"`,'info');
+}
+
+function openNewWorkspaceModal(){
+  selectedWsColor='#534AB7';
+  closeMobDrawer();
+  showModal(`
+    <div class="modal-title">New workspace</div>
+    <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="ws-name" placeholder="e.g. Marketing team" autofocus></div>
+    <div class="form-group"><label class="form-label">Color</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="ws-colors">
+        ${['#534AB7','#1D9E75','#D85A30','#D4537E','#BA7517','#185FA5'].map((c,i)=>`<div onclick="selectWsColor(this,'${c}')" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:2.5px solid ${i===0?'#1a1a18':'transparent'}" data-color="${c}"></div>`).join('')}
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createWorkspace()">Create</button>
+    </div>`);
+}
+
+function selectWsColor(el,c){
+  selectedWsColor=c;
+  document.querySelectorAll('[data-color]').forEach(e=>e.style.borderColor='transparent');
+  el.style.borderColor='var(--text)';
+}
+
+function createWorkspace(){
+  const name=document.getElementById('ws-name').value.trim();if(!name)return;
+  const addBtn=document.querySelector('.ws-chip:last-of-type');
+  const chip=document.createElement('div');
+  chip.className='ws-chip';
+  chip.setAttribute('onclick',`selectWorkspace(this,'${name}')`);
+  chip.innerHTML=`<span class="ws-dot" style="background:${selectedWsColor}"></span><span class="ws-name">${name}</span>`;
+  if(addBtn)addBtn.parentNode.insertBefore(chip,addBtn);
+  closeModal();
+  showToast(`Workspace "${name}" created`,'success');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SEARCH (desktop)
+// ═══════════════════════════════════════════════════════════════════════
+function globalSearch(q){
+  if(!q)return;
+  if(currentView!=='notes'){switchView('notes');}
+  filterNotes(q);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  THEME & SIDEBAR
+// ═══════════════════════════════════════════════════════════════════════
+function toggleTheme(){
+  darkMode=!darkMode;
+  document.documentElement.setAttribute('data-theme',darkMode?'dark':'');
+  document.getElementById('theme-icon').className=darkMode?'ti ti-sun':'ti ti-moon';
+  showToast(darkMode?'Dark mode on':'Light mode on','info');
+}
+
+function toggleSidebar(){
+  sidebarCollapsed=!sidebarCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed',sidebarCollapsed);
+  document.getElementById('sidebar-icon').className=sidebarCollapsed
+    ?'ti ti-layout-sidebar-left-expand'
+    :'ti ti-layout-sidebar-left-collapse';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════════════════════════════
+function showModal(html){
+  const c=document.getElementById('modal-container');
+  c.innerHTML=`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`;
+  setTimeout(()=>{const inp=c.querySelector('input[autofocus]');if(inp)inp.focus();},60);
+}
+function closeModal(){document.getElementById('modal-container').innerHTML='';}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════════════
+function showToast(msg,type='info'){
+  const icons={success:'ti-circle-check',error:'ti-circle-x',info:'ti-info-circle'};
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<i class="ti ${icons[type]}" style="font-size:15px"></i> ${msg}`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},2800);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS (desktop)
+// ═══════════════════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey){
+    if(e.key==='k'){e.preventDefault();document.getElementById('global-search').focus();}
+    if(e.key==='n'&&currentView==='notes'){e.preventDefault();addNote();}
+    if(e.key==='s'&&currentView==='notes'){e.preventDefault();saveNote();}
+  }
+  if(e.key==='Escape'){closeModal();closeMobDrawer();}
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════════
+renderDashboard();
+</script>
 </body>
 </html>
