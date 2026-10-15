@@ -3,7 +3,8 @@ const obj = {
   address: {
     city: "Delhi",
     pin: 110001,
-    coords: { lat: 12.3, long: 45.6, data: [2,4] }
+    coords: { lat: 12.3, long: 45.6, data: [2,4] },
+    data: [1,3,4]
   }
 };
 

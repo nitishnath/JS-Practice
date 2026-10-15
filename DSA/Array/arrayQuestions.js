@@ -1,4 +1,4 @@
-// write a function that searchs for an element in an array and returns the index of the element, if not present return -1
+// Write a function that searches for an element in an array and returns the index of the element; if not present, return -1,
 const searchElement = (arr, num) => {
     // for(let i = 0; i < arr.length - 1; i++) {
     //     if(num === arr[i]) {

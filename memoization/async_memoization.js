@@ -5,7 +5,12 @@
 const asyncMemoization = (fn) => {
     const cache = new Map();
     return function(...args) {
-        const key = JSON.stringify(args);
+
+        //key is used to uniquely identify a function call so that we can store and retrieve its result from cache..
+        //For example:
+        //cache.set("10,20", 30);
+        //cache.set("10,30", 40);
+        const key = JSON.stringify(args); 
         if(cache.has(key)) {
             return cache.get(key);
         }
@@ -19,6 +24,7 @@ const asyncMemoization = (fn) => {
 
         promise.catch(() => {
             //Remove failed requests from the cache
+            //Is the Promise currently stored in the cache still the same Promise that just failed?
             if(cache.get(key) === promise) {
                 cache.delete(key)
             }
