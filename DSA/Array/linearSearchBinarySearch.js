@@ -24,7 +24,9 @@ function searchBinary(arr, target) {
     let right = arr.length - 1;
 
     while (left <= right) {
-        let mid = Math.floor((left + right) / 2);
+        //let mid = Math.floor((left + right) / 2); // this can lead to overflow
+        //better way to finding middle value
+        let mid = Math.floor(left + (right - left) / 2) // This will never overflow
 
         if(arr[mid] === target) {
             return mid;
@@ -110,18 +112,3 @@ function binarySearchAll(nums, element) {
 }
 
 console.log(binarySearchAll([1, 2, 2, 2, 3, 4], 2), 'binarySearchAll')
-
-var mySqrt = function(x) {
-    if(x === 0) return x
-    let first = 0;
-    let last = Math.floor((x-Math.floor(x/2))/2);
-    console.log(last, 'lasr')
-
-    while(first * first <= last) {
-        first ++
-    }
-
-    return first;
-};
-
-console.log(mySqrt(9), 'mySqrt')
